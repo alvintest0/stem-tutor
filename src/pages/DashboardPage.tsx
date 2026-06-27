@@ -68,8 +68,10 @@ export function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-      <h1 className="font-display text-xl text-slate-900 sm:text-2xl">Hey {firstName} 👋</h1>
-      <p className="mt-2 text-slate-500">
+      <h1 className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">
+        Hey {firstName} 👋
+      </h1>
+      <p className="mt-1 text-slate-500">
         Type any STEM concept and get a beginner-friendly explanation.
       </p>
 
@@ -92,7 +94,7 @@ export function DashboardPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="mt-6 rounded-xl border-t-4 border-emerald-400 bg-gradient-to-br from-emerald-600 via-emerald-700 to-amber-800 p-5 shadow-md sm:p-6"
+        className="mt-6 rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 p-5 shadow-md sm:p-6"
       >
         <label className="flex items-center gap-2 text-sm font-medium text-emerald-50">
           <Gem className="h-4 w-4" />
@@ -111,7 +113,7 @@ export function DashboardPage() {
           <button
             type="submit"
             disabled={loading || !query.trim()}
-            className="btn-pixel flex items-center gap-1.5 rounded-md border-2 border-black/20 bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Pickaxe className="h-4 w-4" />
             {loading ? 'Thinking…' : 'Explain'}
@@ -127,19 +129,21 @@ export function DashboardPage() {
         <section>
           {loading && <LoadingSpinner label="Thinking of the best way to explain this…" />}
           {!loading && explanation && (
-            <div className="rounded-xl border-2 border-slate-200 bg-white p-6 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
               <div className="flex items-center gap-2 text-emerald-700">
                 <Gem className="h-4 w-4" />
                 <span className="text-xs font-semibold uppercase tracking-wide">Explanation</span>
               </div>
-              <h2 className="mt-2 font-display text-base text-slate-900">{activeQuery}</h2>
+              <h2 className="mt-2 font-display text-lg font-semibold text-slate-900">
+                {activeQuery}
+              </h2>
               <p className="mt-3 whitespace-pre-line leading-relaxed text-slate-700">
                 {explanation}
               </p>
             </div>
           )}
           {!loading && !explanation && (
-            <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 p-10 text-center">
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 p-10 text-center">
               <Pickaxe className="h-8 w-8 text-slate-300" />
               <p className="mt-3 text-sm text-slate-400">Your explanation will show up here.</p>
             </div>
@@ -149,12 +153,12 @@ export function DashboardPage() {
         <aside>
           <h3 className="flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wide text-slate-500">
             <Backpack className="h-4 w-4" />
-            Your inventory ({history.length})
+            Your history ({history.length})
           </h3>
           <div className="mt-3 space-y-3">
             {historyLoading && <LoadingSpinner />}
             {!historyLoading && history.length === 0 && (
-              <p className="rounded-xl border-2 border-dashed border-slate-300 p-6 text-center text-sm text-slate-400">
+              <p className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-400">
                 No concepts explored yet — search for one above!
               </p>
             )}
@@ -178,7 +182,7 @@ interface StatCardProps {
 
 function StatCard({ icon: Icon, iconColor, label, value, isText }: StatCardProps) {
   return (
-    <div className="rounded-lg border-2 border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
       <Icon className={`h-4 w-4 ${iconColor}`} />
       <p
         className={

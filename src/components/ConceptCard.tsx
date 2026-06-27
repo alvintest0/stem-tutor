@@ -23,7 +23,7 @@ export function ConceptCard({ concept, onSelect }: ConceptCardProps) {
   return (
     <button
       onClick={() => onSelect(concept)}
-      className="group w-full rounded-lg border-2 border-slate-200 bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
+      className="group w-full rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
     >
       <div className="flex items-start gap-3">
         <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-emerald-50 text-emerald-700 transition-colors group-hover:bg-emerald-100">
