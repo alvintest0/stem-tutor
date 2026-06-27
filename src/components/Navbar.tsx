@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { GraduationCap, LogOut } from 'lucide-react';
+import { Box, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 export function Navbar() {
@@ -14,9 +14,9 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-10 border-b border-slate-200/80 bg-white/80 backdrop-blur-sm">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
-        <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold text-slate-900">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-sm">
-            <GraduationCap className="h-5 w-5" strokeWidth={2.25} />
+        <Link to="/" className="flex items-center gap-2 font-display text-base text-slate-900">
+          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-emerald-500 to-amber-700 text-white shadow-sm">
+            <Box className="h-4 w-4" strokeWidth={2.25} />
           </span>
           STEM Tutor
         </Link>
@@ -33,6 +33,7 @@ export function Navbar() {
           </div>
         )}
       </div>
+      <div className="h-1 bg-gradient-to-r from-emerald-500 via-emerald-600 to-amber-700" />
     </header>
   );
 }

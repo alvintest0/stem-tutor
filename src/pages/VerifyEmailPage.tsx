@@ -68,7 +68,7 @@ export function VerifyEmailPage() {
         <button
           onClick={handleCheck}
           disabled={status === 'checking'}
-          className="mt-6 w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="btn-pixel mt-6 w-full rounded-md border-2 border-black/10 bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {status === 'checking' ? 'Checking…' : "I've verified — refresh"}
         </button>

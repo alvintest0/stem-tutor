@@ -41,7 +41,7 @@ export function SignupPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
           />
         </div>
         <div>
@@ -51,7 +51,7 @@ export function SignupPage() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
           />
         </div>
 
@@ -60,7 +60,7 @@ export function SignupPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="btn-pixel w-full rounded-md border-2 border-black/10 bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting ? 'Creating account…' : 'Sign up'}
         </button>
@@ -68,7 +68,7 @@ export function SignupPage() {
 
       <p className="mt-6 text-center text-sm text-slate-500">
         Already have an account?{' '}
-        <Link to="/login" className="font-medium text-indigo-600 hover:underline">
+        <Link to="/login" className="font-medium text-emerald-600 hover:underline">
           Log in
         </Link>
       </p>

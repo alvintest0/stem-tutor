@@ -11,7 +11,7 @@ function App() {
     <div className="relative min-h-screen bg-slate-50">
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_60%_50%_at_50%_-10%,var(--color-indigo-100),transparent)]"
+        className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_60%_50%_at_50%_-10%,var(--color-sky-100),transparent)]"
       />
       <Navbar />
       <Routes>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { BookOpen, CalendarDays, Search, Sparkles, Trophy } from 'lucide-react';
+import { Backpack, CalendarDays, Gem, Pickaxe, Search } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { explainConcept } from '@/services/claude';
 import { getConcepts, saveConcept } from '@/services/concepts';
@@ -68,18 +68,22 @@ export function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-      <h1 className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">
-        Hey {firstName} 👋
-      </h1>
-      <p className="mt-1 text-slate-500">
+      <h1 className="font-display text-xl text-slate-900 sm:text-2xl">Hey {firstName} 👋</h1>
+      <p className="mt-2 text-slate-500">
         Type any STEM concept and get a beginner-friendly explanation.
       </p>
 
       <div className="mt-6 grid grid-cols-3 gap-3 sm:gap-4">
-        <StatCard icon={Trophy} label="Explored" value={stats.total} />
-        <StatCard icon={CalendarDays} label="This week" value={stats.thisWeek} />
+        <StatCard icon={Pickaxe} iconColor="text-amber-700" label="Explored" value={stats.total} />
         <StatCard
-          icon={BookOpen}
+          icon={CalendarDays}
+          iconColor="text-emerald-600"
+          label="This week"
+          value={stats.thisWeek}
+        />
+        <StatCard
+          icon={Gem}
+          iconColor="text-sky-600"
           label="Latest topic"
           value={stats.latest ?? '—'}
           isText
@@ -88,10 +92,10 @@ export function DashboardPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="mt-6 rounded-2xl bg-gradient-to-br from-indigo-600 to-violet-600 p-5 shadow-md sm:p-6"
+        className="mt-6 rounded-xl border-t-4 border-emerald-400 bg-gradient-to-br from-emerald-600 via-emerald-700 to-amber-800 p-5 shadow-md sm:p-6"
       >
-        <label className="flex items-center gap-2 text-sm font-medium text-indigo-100">
-          <Sparkles className="h-4 w-4" />
+        <label className="flex items-center gap-2 text-sm font-medium text-emerald-50">
+          <Gem className="h-4 w-4" />
           What do you want to understand today?
         </label>
         <div className="mt-3 flex gap-2">
@@ -107,8 +111,9 @@ export function DashboardPage() {
           <button
             type="submit"
             disabled={loading || !query.trim()}
-            className="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="btn-pixel flex items-center gap-1.5 rounded-md border-2 border-black/20 bg-slate-900 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
+            <Pickaxe className="h-4 w-4" />
             {loading ? 'Thinking…' : 'Explain'}
           </button>
         </div>
@@ -122,38 +127,34 @@ export function DashboardPage() {
         <section>
           {loading && <LoadingSpinner label="Thinking of the best way to explain this…" />}
           {!loading && explanation && (
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="flex items-center gap-2 text-indigo-600">
-                <Sparkles className="h-4 w-4" />
+            <div className="rounded-xl border-2 border-slate-200 bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-2 text-emerald-700">
+                <Gem className="h-4 w-4" />
                 <span className="text-xs font-semibold uppercase tracking-wide">Explanation</span>
               </div>
-              <h2 className="mt-2 font-display text-lg font-semibold text-slate-900">
-                {activeQuery}
-              </h2>
+              <h2 className="mt-2 font-display text-base text-slate-900">{activeQuery}</h2>
               <p className="mt-3 whitespace-pre-line leading-relaxed text-slate-700">
                 {explanation}
               </p>
             </div>
           )}
           {!loading && !explanation && (
-            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 p-10 text-center">
-              <Sparkles className="h-8 w-8 text-slate-300" />
-              <p className="mt-3 text-sm text-slate-400">
-                Your explanation will show up here.
-              </p>
+            <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-300 p-10 text-center">
+              <Pickaxe className="h-8 w-8 text-slate-300" />
+              <p className="mt-3 text-sm text-slate-400">Your explanation will show up here.</p>
             </div>
           )}
         </section>
 
         <aside>
           <h3 className="flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wide text-slate-500">
-            <BookOpen className="h-4 w-4" />
-            Your history ({history.length})
+            <Backpack className="h-4 w-4" />
+            Your inventory ({history.length})
           </h3>
           <div className="mt-3 space-y-3">
             {historyLoading && <LoadingSpinner />}
             {!historyLoading && history.length === 0 && (
-              <p className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-400">
+              <p className="rounded-xl border-2 border-dashed border-slate-300 p-6 text-center text-sm text-slate-400">
                 No concepts explored yet — search for one above!
               </p>
             )}
@@ -168,16 +169,17 @@ export function DashboardPage() {
 }
 
 interface StatCardProps {
-  icon: typeof Trophy;
+  icon: typeof Pickaxe;
+  iconColor: string;
   label: string;
   value: string | number;
   isText?: boolean;
 }
 
-function StatCard({ icon: Icon, label, value, isText }: StatCardProps) {
+function StatCard({ icon: Icon, iconColor, label, value, isText }: StatCardProps) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
-      <Icon className="h-4 w-4 text-indigo-500" />
+    <div className="rounded-lg border-2 border-slate-200 bg-white p-3 shadow-sm sm:p-4">
+      <Icon className={`h-4 w-4 ${iconColor}`} />
       <p
         className={
           isText
