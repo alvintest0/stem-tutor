@@ -57,6 +57,7 @@ export default defineConfig(({ mode }) => {
   // API middleware, mirroring how Vercel injects them in production.
   const env = loadEnv(mode, process.cwd(), '')
   process.env.ANTHROPIC_API_KEY = env.ANTHROPIC_API_KEY
+  process.env.FIREBASE_SERVICE_ACCOUNT_KEY = env.FIREBASE_SERVICE_ACCOUNT_KEY
 
   return {
     plugins: [react(), tailwindcss(), vercelApiDevPlugin()],

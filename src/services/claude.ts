@@ -1,7 +1,14 @@
+import { auth } from '@/services/firebase';
+
 export async function explainConcept(concept: string): Promise<string> {
+  const token = await auth.currentUser?.getIdToken();
+
   const response = await fetch('/api/explain', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify({ concept }),
   });
 
