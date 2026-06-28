@@ -1,4 +1,4 @@
-# Mindcraft
+# StemCraft
 
 An AI STEM tutor. Type any concept, get a simple, beginner-friendly explanation
 powered by Claude, and revisit everything you've explored from your dashboard.

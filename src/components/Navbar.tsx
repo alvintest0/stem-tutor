@@ -18,7 +18,7 @@ export function Navbar() {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-sm">
             <Box className="h-4 w-4" strokeWidth={2.25} />
           </span>
-          Mindcraft
+          StemCraft
         </Link>
         {currentUser && (
           <div className="flex items-center gap-3 text-sm text-slate-600">
