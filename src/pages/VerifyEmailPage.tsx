@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthCard } from '@/components/AuthCard';
@@ -60,26 +61,44 @@ export function VerifyEmailPage() {
           Don&apos;t see it? Check your spam or junk folder.
         </p>
 
-        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+        {error && (
+          <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 text-sm text-red-600"
+          >
+            {error}
+          </motion.p>
+        )}
         {status === 'sent' && (
-          <p className="mt-4 text-sm text-emerald-600">Verification email sent.</p>
+          <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-4 text-sm text-emerald-600"
+          >
+            Verification email sent.
+          </motion.p>
         )}
 
-        <button
+        <motion.button
           onClick={handleCheck}
           disabled={status === 'checking'}
-          className="mt-6 w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
+          className="mt-6 w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {status === 'checking' ? 'Checking…' : "I've verified — refresh"}
-        </button>
+        </motion.button>
 
-        <button
+        <motion.button
           onClick={handleResend}
           disabled={status === 'sending'}
-          className="mt-3 w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
+          className="mt-3 w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {status === 'sending' ? 'Sending…' : 'Resend email'}
-        </button>
+        </motion.button>
 
         <button onClick={handleLogout} className="mt-3 text-sm text-slate-400 hover:underline">
           Log out

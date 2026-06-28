@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Lock, Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthCard } from '@/components/AuthCard';
@@ -44,15 +45,17 @@ export function LoginPage() {
 
   return (
     <AuthCard title="Welcome back" subtitle="Log in to keep exploring STEM concepts.">
-      <button
+      <motion.button
         type="button"
         onClick={handleGoogleSignIn}
         disabled={googleLoading}
-        className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.97 }}
+        className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <GoogleIcon className="h-4 w-4" />
         {googleLoading ? 'Connecting…' : 'Continue with Google'}
-      </button>
+      </motion.button>
 
       <div className="relative my-5">
         <div className="absolute inset-0 flex items-center">
@@ -81,15 +84,25 @@ export function LoginPage() {
           required
         />
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && (
+          <motion.p
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-sm text-red-600"
+          >
+            {error}
+          </motion.p>
+        )}
 
-        <button
+        <motion.button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
+          className="w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting ? 'Logging in…' : 'Log in'}
-        </button>
+        </motion.button>
       </form>
 
       <p className="mt-6 text-center text-sm text-slate-500">

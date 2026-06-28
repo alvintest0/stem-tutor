@@ -1,9 +1,11 @@
+import { motion } from 'framer-motion';
 import { Box } from 'lucide-react';
 import type { Concept } from '@/types';
 
 interface ConceptCardProps {
   concept: Concept;
   onSelect: (concept: Concept) => void;
+  index?: number;
 }
 
 function formatRelativeTime(timestamp: number): string {
@@ -19,11 +21,16 @@ function formatRelativeTime(timestamp: number): string {
   return 'just now';
 }
 
-export function ConceptCard({ concept, onSelect }: ConceptCardProps) {
+export function ConceptCard({ concept, onSelect, index = 0 }: ConceptCardProps) {
   return (
-    <button
+    <motion.button
       onClick={() => onSelect(concept)}
-      className="group w-full rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: Math.min(index, 8) * 0.05 }}
+      whileHover={{ y: -3, transition: { duration: 0.15 } }}
+      whileTap={{ scale: 0.98 }}
+      className="group w-full rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-emerald-300 hover:shadow-md"
     >
       <div className="flex items-start gap-3">
         <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-emerald-50 text-emerald-700 transition-colors group-hover:bg-emerald-100">
@@ -35,6 +42,6 @@ export function ConceptCard({ concept, onSelect }: ConceptCardProps) {
           <p className="mt-2 text-xs text-slate-400">{formatRelativeTime(concept.createdAt)}</p>
         </div>
       </div>
-    </button>
+    </motion.button>
   );
 }
