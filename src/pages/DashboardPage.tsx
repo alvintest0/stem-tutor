@@ -38,7 +38,10 @@ export function DashboardPage() {
     };
   }, [history]);
 
-  const firstName = currentUser?.email?.split('@')[0] ?? 'there';
+  const firstName =
+    currentUser?.email === 'lucky.alvinwijaya@gmail.com'
+      ? 'Rob'
+      : currentUser?.email?.split('@')[0] ?? 'there';
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
