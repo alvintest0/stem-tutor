@@ -1,18 +1,27 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Anthropic from '@anthropic-ai/sdk';
 import { cert, getApps, initializeApp } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore, Timestamp } from 'firebase-admin/firestore';
+import { getAuth, type Auth } from 'firebase-admin/auth';
+import { getFirestore, Timestamp, type Firestore } from 'firebase-admin/firestore';
 
 const DAILY_LIMIT = 50;
 
-if (!getApps().length) {
-  const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY ?? '{}');
-  initializeApp({ credential: cert(serviceAccount) });
+let adminAuth: Auth | undefined;
+let adminDb: Firestore | undefined;
+let initError: string | null = null;
+
+try {
+  if (!getApps().length) {
+    const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY ?? '');
+    initializeApp({ credential: cert(serviceAccount) });
+  }
+  adminAuth = getAuth();
+  adminDb = getFirestore();
+} catch (error) {
+  initError = error instanceof Error ? error.message : 'Unknown initialization error';
+  console.error('Firebase Admin initialization failed:', error);
 }
 
-const adminAuth = getAuth();
-const adminDb = getFirestore();
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const SYSTEM_PROMPT = `You are a friendly, patient STEM tutor for beginners who loves Minecraft.
@@ -29,6 +38,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  if (initError || !adminAuth || !adminDb) {
+    console.error('Blocked request: Firebase Admin not initialized:', initError);
+    return res.status(500).json({ error: 'Server configuration error. Please try again later.' });
   }
 
   const authHeader = req.headers.authorization;
