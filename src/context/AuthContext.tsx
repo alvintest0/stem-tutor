@@ -1,9 +1,11 @@
 import { createContext, useEffect, useState, type ReactNode } from 'react';
 import {
   createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   onAuthStateChanged,
   sendEmailVerification,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signOut,
   type User,
 } from 'firebase/auth';
@@ -15,12 +17,15 @@ export interface AuthContextValue {
   loading: boolean;
   signup: (email: string, password: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   resendVerificationEmail: () => Promise<void>;
   refreshEmailVerified: () => Promise<boolean>;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+const googleProvider = new GoogleAuthProvider();
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -43,6 +48,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function login(email: string, password: string) {
     await signInWithEmailAndPassword(auth, email, password);
+  }
+
+  async function loginWithGoogle() {
+    await signInWithPopup(auth, googleProvider);
   }
 
   async function logout() {
@@ -72,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     signup,
     login,
+    loginWithGoogle,
     logout,
     resendVerificationEmail,
     refreshEmailVerified,

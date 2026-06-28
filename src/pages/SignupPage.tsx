@@ -4,13 +4,15 @@ import { Lock, Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthCard } from '@/components/AuthCard';
 import { TextField } from '@/components/TextField';
+import { GoogleIcon } from '@/components/GoogleIcon';
 
 export function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const { signup } = useAuth();
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const { signup, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   async function handleSubmit(e: FormEvent) {
@@ -33,8 +35,40 @@ export function SignupPage() {
     }
   }
 
+  async function handleGoogleSignIn() {
+    setError('');
+    setGoogleLoading(true);
+    try {
+      await loginWithGoogle();
+      navigate('/');
+    } catch {
+      setError('Could not sign in with Google. Please try again.');
+    } finally {
+      setGoogleLoading(false);
+    }
+  }
+
   return (
     <AuthCard title="Create your account" subtitle="Start exploring STEM concepts in minutes.">
+      <button
+        type="button"
+        onClick={handleGoogleSignIn}
+        disabled={googleLoading}
+        className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        <GoogleIcon className="h-4 w-4" />
+        {googleLoading ? 'Connecting…' : 'Continue with Google'}
+      </button>
+
+      <div className="relative my-5">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-slate-200" />
+        </div>
+        <div className="relative flex justify-center text-xs">
+          <span className="bg-white px-2 text-slate-400">or sign up with email</span>
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <TextField
           label="Email"
