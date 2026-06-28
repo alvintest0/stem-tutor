@@ -113,7 +113,7 @@ export function DashboardPage() {
           <button
             type="submit"
             disabled={loading || !query.trim()}
-            className="flex items-center gap-1.5 rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Pickaxe className="h-4 w-4" />
             {loading ? 'Thinking…' : 'Explain'}

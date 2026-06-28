@@ -3,7 +3,6 @@
 @theme {
   --font-sans: "Inter", system-ui, "Segoe UI", Roboto, sans-serif;
   --font-display: "Lexend", "Inter", system-ui, sans-serif;
-  --font-pixel: "Press Start 2P", "Inter", system-ui, sans-serif;
 }
 
 html,
@@ -26,10 +25,5 @@ body {
 @layer utilities {
   .font-display {
     font-family: var(--font-display);
-  }
-
-  .font-pixel {
-    font-family: var(--font-pixel);
-    line-height: 1.6;
   }
 }

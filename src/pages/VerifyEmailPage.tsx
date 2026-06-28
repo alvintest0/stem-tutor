@@ -68,7 +68,7 @@ export function VerifyEmailPage() {
         <button
           onClick={handleCheck}
           disabled={status === 'checking'}
-          className="mt-6 w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-6 w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {status === 'checking' ? 'Checking…' : "I've verified — refresh"}
         </button>
@@ -76,7 +76,7 @@ export function VerifyEmailPage() {
         <button
           onClick={handleResend}
           disabled={status === 'sending'}
-          className="mt-3 w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-3 w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {status === 'sending' ? 'Sending…' : 'Resend email'}
         </button>
