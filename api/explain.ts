@@ -2,12 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import Anthropic from '@anthropic-ai/sdk';
 import { cert, getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth, type Auth } from 'firebase-admin/auth';
-import { getFirestore, Timestamp, type Firestore } from 'firebase-admin/firestore';
-
-const DAILY_LIMIT = 50;
 
 let adminAuth: Auth | undefined;
-let adminDb: Firestore | undefined;
 let initError: string | null = null;
 
 try {
@@ -16,7 +12,6 @@ try {
     initializeApp({ credential: cert(serviceAccount) });
   }
   adminAuth = getAuth();
-  adminDb = getFirestore();
 } catch (error) {
   initError = error instanceof Error ? error.message : 'Unknown initialization error';
   console.error('Firebase Admin initialization failed:', error);
@@ -40,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  if (initError || !adminAuth || !adminDb) {
+  if (initError || !adminAuth) {
     console.error('Blocked request: Firebase Admin not initialized:', initError);
     return res.status(500).json({ error: 'Server configuration error. Please try again later.' });
   }
@@ -50,13 +45,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(401).json({ error: 'Please log in to use this feature.' });
   }
 
-  let uid: string;
   try {
     const decoded = await adminAuth.verifyIdToken(authHeader.slice('Bearer '.length));
     if (!decoded.email_verified) {
       return res.status(403).json({ error: 'Please verify your email before using this feature.' });
     }
-    uid = decoded.uid;
   } catch {
     return res.status(401).json({ error: 'Your session has expired. Please log in again.' });
   }
@@ -69,26 +62,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (concept.length > 300) {
     return res.status(400).json({ error: 'That concept is too long. Try something shorter.' });
-  }
-
-  try {
-    const oneDayAgo = Timestamp.fromMillis(Date.now() - 24 * 60 * 60 * 1000);
-    const recentSnapshot = await adminDb
-      .collection('users')
-      .doc(uid)
-      .collection('concepts')
-      .where('createdAt', '>=', oneDayAgo)
-      .count()
-      .get();
-
-    if (recentSnapshot.data().count >= DAILY_LIMIT) {
-      return res.status(429).json({
-        error: `You've reached your daily limit of ${DAILY_LIMIT} explanations. Try again tomorrow!`,
-      });
-    }
-  } catch (error) {
-    console.error('Rate limit check failed:', error);
-    return res.status(502).json({ error: 'Failed to get an explanation. Please try again.' });
   }
 
   try {
