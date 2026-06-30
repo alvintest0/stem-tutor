@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthCard } from '@/components/AuthCard';
+import { playClick, playHover } from '@/lib/sound';
 
 export function VerifyEmailPage() {
   const { currentUser, emailVerified, resendVerificationEmail, refreshEmailVerified, logout } =
@@ -17,10 +18,11 @@ export function VerifyEmailPage() {
   }
 
   if (emailVerified) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   async function handleResend() {
+    playClick();
     setStatus('sending');
     setError('');
     try {
@@ -33,11 +35,12 @@ export function VerifyEmailPage() {
   }
 
   async function handleCheck() {
+    playClick();
     setStatus('checking');
     setError('');
     const verified = await refreshEmailVerified();
     if (verified) {
-      navigate('/');
+      navigate('/dashboard');
     } else {
       setError("Still not verified. Click the link in your email, then try again.");
       setStatus('idle');
@@ -45,6 +48,7 @@ export function VerifyEmailPage() {
   }
 
   async function handleLogout() {
+    playClick();
     await logout();
     navigate('/login');
   }
@@ -82,6 +86,7 @@ export function VerifyEmailPage() {
 
         <motion.button
           onClick={handleCheck}
+          onMouseEnter={playHover}
           disabled={status === 'checking'}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
@@ -92,6 +97,7 @@ export function VerifyEmailPage() {
 
         <motion.button
           onClick={handleResend}
+          onMouseEnter={playHover}
           disabled={status === 'sending'}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
@@ -100,7 +106,11 @@ export function VerifyEmailPage() {
           {status === 'sending' ? 'Sending…' : 'Resend email'}
         </motion.button>
 
-        <button onClick={handleLogout} className="mt-3 text-sm text-slate-400 hover:underline">
+        <button
+          onClick={handleLogout}
+          onMouseEnter={playHover}
+          className="mt-3 text-sm text-slate-400 hover:underline"
+        >
           Log out
         </button>
       </div>

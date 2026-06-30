@@ -1,15 +1,43 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Backpack, CalendarDays, Gem, Pickaxe, Search } from 'lucide-react';
+import { Backpack, CalendarDays, Gem, Pickaxe, Search, Shuffle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { explainConcept } from '@/services/claude';
-import { getConcepts, saveConcept } from '@/services/concepts';
+import { deleteConcept, getConcepts, saveConcept } from '@/services/concepts';
 import { ConceptCard } from '@/components/ConceptCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useCountUp } from '@/hooks/useCountUp';
+import { playClick, playHover, playSurprise } from '@/lib/sound';
 import type { Concept } from '@/types';
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+const SURPRISE_CONCEPTS = [
+  "Newton's second law",
+  'Photosynthesis',
+  'DNA replication',
+  'The Pythagorean theorem',
+  'Black holes',
+  'The pH scale',
+  'Electric circuits',
+  'Natural selection',
+  'The water cycle',
+  'Prime numbers',
+  'Plate tectonics',
+  'Quantum entanglement',
+  'Osmosis',
+  'Gravity',
+  'The periodic table',
+  'Binary numbers',
+  'Renewable energy',
+  'The Big Bang',
+  'Cellular respiration',
+  'Magnetism',
+  'Probability',
+  'Chemical bonds',
+  'The immune system',
+  'Exponential growth',
+];
 
 export function DashboardPage() {
   const { currentUser } = useAuth();
@@ -43,20 +71,18 @@ export function DashboardPage() {
       ? 'Rob'
       : currentUser?.email?.split('@')[0] ?? 'there';
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    const trimmed = query.trim();
-    if (!trimmed || !currentUser) return;
+  async function runExplain(concept: string) {
+    if (!currentUser) return;
 
     setLoading(true);
     setError('');
 
     try {
-      const result = await explainConcept(trimmed);
+      const result = await explainConcept(concept);
       setExplanation(result);
-      setActiveQuery(trimmed);
+      setActiveQuery(concept);
       setQuery('');
-      await saveConcept(currentUser.uid, trimmed, result);
+      await saveConcept(currentUser.uid, concept, result);
       setHistory(await getConcepts(currentUser.uid));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong.');
@@ -65,10 +91,42 @@ export function DashboardPage() {
     }
   }
 
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    playClick();
+    const trimmed = query.trim();
+    if (!trimmed) return;
+    runExplain(trimmed);
+  }
+
+  function handleSurpriseMe() {
+    playSurprise();
+    const random = SURPRISE_CONCEPTS[Math.floor(Math.random() * SURPRISE_CONCEPTS.length)]!;
+    setQuery(random);
+    runExplain(random);
+  }
+
   function handleSelectConcept(concept: Concept) {
+    playClick();
     setActiveQuery(concept.query);
     setExplanation(concept.explanation);
     setError('');
+  }
+
+  async function handleDeleteConcept(concept: Concept) {
+    playClick();
+    if (!currentUser) return;
+    setHistory((prev) => prev.filter((c) => c.id !== concept.id));
+    if (activeQuery === concept.query) {
+      setActiveQuery('');
+      setExplanation('');
+    }
+    try {
+      await deleteConcept(currentUser.uid, concept.id);
+    } catch {
+      setError('Could not delete that concept. Please try again.');
+      setHistory(await getConcepts(currentUser.uid));
+    }
   }
 
   return (
@@ -135,25 +193,38 @@ export function DashboardPage() {
             </motion.span>
             What do you want to understand today?
           </label>
-          <div className="mt-3 flex gap-2">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="e.g. Newton's second law"
-                className="w-full rounded-lg border-0 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-white"
-              />
-            </div>
+          <div className="relative mt-3">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="e.g. Newton's second law"
+              className="w-full rounded-lg border-0 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </div>
+          <div className="mt-2 flex flex-col gap-2 sm:flex-row">
             <motion.button
               type="submit"
               disabled={loading || !query.trim()}
-              whileHover={{ scale: 1.03 }}
+              onMouseEnter={playHover}
+              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.97 }}
-              className="flex items-center gap-1.5 rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <Pickaxe className="h-4 w-4" />
               {loading ? 'Thinking…' : 'Explain'}
+            </motion.button>
+            <motion.button
+              type="button"
+              onClick={handleSurpriseMe}
+              onMouseEnter={playHover}
+              disabled={loading}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              className="flex items-center justify-center gap-1.5 rounded-lg border border-white/30 bg-white/10 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Shuffle className="h-4 w-4" />
+              Surprise me
             </motion.button>
           </div>
         </div>
@@ -236,6 +307,7 @@ export function DashboardPage() {
                 key={concept.id}
                 concept={concept}
                 onSelect={handleSelectConcept}
+                onDelete={handleDeleteConcept}
                 index={i}
               />
             ))}

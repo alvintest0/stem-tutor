@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Box, type LucideIcon } from 'lucide-react';
+import { ArrowLeft, Box, type LucideIcon } from 'lucide-react';
 
 interface AuthCardProps {
   title: string;
@@ -18,6 +19,13 @@ export function AuthCard({ title, subtitle, children, icon: Icon = Box }: AuthCa
         transition={{ duration: 0.35, ease: 'easeOut' }}
         className="w-full max-w-sm"
       >
+        <Link
+          to="/"
+          className="mb-4 flex items-center gap-1.5 text-sm font-medium text-slate-500 transition-colors hover:text-slate-700"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to home
+        </Link>
         <div className="mb-6 flex flex-col items-center text-center">
           <motion.span
             initial={{ scale: 0.5, opacity: 0 }}

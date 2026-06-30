@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { AuthCard } from '@/components/AuthCard';
 import { TextField } from '@/components/TextField';
 import { GoogleIcon } from '@/components/GoogleIcon';
+import { playClick, playHover } from '@/lib/sound';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -18,11 +19,12 @@ export function LoginPage() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    playClick();
     setError('');
     setSubmitting(true);
     try {
       await login(email, password);
-      navigate('/');
+      navigate('/dashboard');
     } catch {
       setError('Could not log in. Check your email and password.');
     } finally {
@@ -31,11 +33,12 @@ export function LoginPage() {
   }
 
   async function handleGoogleSignIn() {
+    playClick();
     setError('');
     setGoogleLoading(true);
     try {
       await loginWithGoogle();
-      navigate('/');
+      navigate('/dashboard');
     } catch {
       setError('Could not sign in with Google. Please try again.');
     } finally {
@@ -48,6 +51,7 @@ export function LoginPage() {
       <motion.button
         type="button"
         onClick={handleGoogleSignIn}
+        onMouseEnter={playHover}
         disabled={googleLoading}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.97 }}
@@ -97,6 +101,7 @@ export function LoginPage() {
         <motion.button
           type="submit"
           disabled={submitting}
+          onMouseEnter={playHover}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
           className="w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
@@ -107,7 +112,12 @@ export function LoginPage() {
 
       <p className="mt-6 text-center text-sm text-slate-500">
         Don&apos;t have an account?{' '}
-        <Link to="/signup" className="font-medium text-emerald-600 hover:underline">
+        <Link
+          to="/signup"
+          onMouseEnter={playHover}
+          onClick={playClick}
+          className="font-medium text-emerald-600 hover:underline"
+        >
           Sign up
         </Link>
       </p>
