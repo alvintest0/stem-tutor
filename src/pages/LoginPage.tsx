@@ -51,7 +51,6 @@ export function LoginPage() {
       <motion.button
         type="button"
         onClick={handleGoogleSignIn}
-        onMouseEnter={playHover}
         disabled={googleLoading}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.97 }}

@@ -21,7 +21,6 @@ export function Navbar() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
         <Link
           to={currentUser ? '/dashboard' : '/'}
-          onMouseEnter={playHover}
           onClick={playClick}
           className="flex items-center gap-2 font-display text-lg font-bold text-slate-900"
         >
@@ -39,7 +38,6 @@ export function Navbar() {
             {currentUser.email === ADMIN_EMAIL && (
               <Link
                 to="/admin"
-                onMouseEnter={playHover}
                 onClick={playClick}
                 className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-50"
               >
@@ -50,7 +48,6 @@ export function Navbar() {
             <span className="hidden sm:inline">{currentUser.email}</span>
             <motion.button
               onClick={handleLogout}
-              onMouseEnter={playHover}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
               className="flex items-center gap-1.5 rounded-md border border-slate-200 px-3 py-1.5 font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50"
