@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Backpack, CalendarDays, Gem, Pickaxe, Search, Shuffle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { explainConcept } from '@/services/claude';
+import { explainConcept, type Difficulty } from '@/services/claude';
 import { deleteConcept, getConcepts, saveConcept } from '@/services/concepts';
 import { ConceptCard } from '@/components/ConceptCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
@@ -48,6 +48,7 @@ export function DashboardPage() {
   const [error, setError] = useState('');
   const [history, setHistory] = useState<Concept[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
+  const [difficulty, setDifficulty] = useState<Difficulty>('intermediate');
 
   useEffect(() => {
     if (!currentUser) return;
@@ -78,7 +79,7 @@ export function DashboardPage() {
     setError('');
 
     try {
-      const result = await explainConcept(concept);
+      const result = await explainConcept(concept, difficulty);
       setExplanation(result);
       setActiveQuery(concept);
       setQuery('');
@@ -184,15 +185,34 @@ export function DashboardPage() {
         />
 
         <div className="relative z-10">
-          <label className="flex items-center gap-2 text-sm font-medium text-emerald-50">
-            <motion.span
-              animate={{ scale: [1, 1.25, 1], rotate: [0, 12, 0] }}
-              transition={{ duration: 2.4, repeat: Infinity, repeatDelay: 1.2, ease: 'easeInOut' }}
-            >
-              <Gem className="h-4 w-4" />
-            </motion.span>
-            What do you want to understand today?
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-2 text-sm font-medium text-emerald-50">
+              <motion.span
+                animate={{ scale: [1, 1.25, 1], rotate: [0, 12, 0] }}
+                transition={{ duration: 2.4, repeat: Infinity, repeatDelay: 1.2, ease: 'easeInOut' }}
+              >
+                <Gem className="h-4 w-4" />
+              </motion.span>
+              What do you want to understand today?
+            </label>
+            <div className="flex gap-1 rounded-lg bg-black/20 p-0.5">
+              {(['beginner', 'intermediate', 'advanced'] as const).map((level) => (
+                <button
+                  key={level}
+                  type="button"
+                  onMouseEnter={playHover}
+                  onClick={() => { playClick(); setDifficulty(level); }}
+                  className={`rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors ${
+                    difficulty === level
+                      ? 'bg-white text-slate-900 shadow-sm'
+                      : 'text-white/70 hover:text-white'
+                  }`}
+                >
+                  {level}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="relative mt-3">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input

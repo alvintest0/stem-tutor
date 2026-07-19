@@ -1,8 +1,10 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Box, LogOut } from 'lucide-react';
+import { BarChart2, Box, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { playClick, playHover } from '@/lib/sound';
+
+const ADMIN_EMAIL = 'lucky.alvinwijaya@gmail.com';
 
 export function Navbar() {
   const { currentUser, logout } = useAuth();
@@ -34,6 +36,17 @@ export function Navbar() {
         </Link>
         {currentUser ? (
           <div className="flex items-center gap-3 text-sm text-slate-600">
+            {currentUser.email === ADMIN_EMAIL && (
+              <Link
+                to="/admin"
+                onMouseEnter={playHover}
+                onClick={playClick}
+                className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-50"
+              >
+                <BarChart2 className="h-3.5 w-3.5" />
+                Admin
+              </Link>
+            )}
             <span className="hidden sm:inline">{currentUser.email}</span>
             <motion.button
               onClick={handleLogout}

@@ -1,6 +1,8 @@
 import { auth } from '@/services/firebase';
 
-export async function explainConcept(concept: string): Promise<string> {
+export type Difficulty = 'beginner' | 'intermediate' | 'advanced';
+
+export async function explainConcept(concept: string, difficulty: Difficulty = 'intermediate'): Promise<string> {
   const token = await auth.currentUser?.getIdToken();
 
   const response = await fetch('/api/explain', {
@@ -9,7 +11,7 @@ export async function explainConcept(concept: string): Promise<string> {
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    body: JSON.stringify({ concept }),
+    body: JSON.stringify({ concept, difficulty }),
   });
 
   if (!response.ok) {
