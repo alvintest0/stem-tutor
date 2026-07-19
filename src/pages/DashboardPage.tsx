@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Backpack, CalendarDays, Gem, LayersIcon, Pickaxe, Search, Shuffle } from 'lucide-react';
+import { Backpack, CalendarDays, Gem, LayersIcon, Pickaxe, Search, Shuffle, Timer } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { explainConcept, type Difficulty } from '@/services/claude';
 import { deleteConcept, getConcepts, saveConcept } from '@/services/concepts';
 import { ConceptCard } from '@/components/ConceptCard';
 import { FlashcardModal } from '@/components/FlashcardModal';
+import { PomodoroTimer } from '@/components/PomodoroTimer';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useCountUp } from '@/hooks/useCountUp';
 import { playClick, playSuccess, playSurprise } from '@/lib/sound';
@@ -14,34 +15,19 @@ import type { Concept } from '@/types';
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 const SURPRISE_CONCEPTS = [
-  "Newton's second law",
-  'Photosynthesis',
-  'DNA replication',
-  'The Pythagorean theorem',
-  'Black holes',
-  'The pH scale',
-  'Electric circuits',
-  'Natural selection',
-  'The water cycle',
-  'Prime numbers',
-  'Plate tectonics',
-  'Quantum entanglement',
-  'Osmosis',
-  'Gravity',
-  'The periodic table',
-  'Binary numbers',
-  'Renewable energy',
-  'The Big Bang',
-  'Cellular respiration',
-  'Magnetism',
-  'Probability',
-  'Chemical bonds',
-  'The immune system',
-  'Exponential growth',
+  "Newton's second law", 'Photosynthesis', 'DNA replication', 'The Pythagorean theorem',
+  'Black holes', 'The pH scale', 'Electric circuits', 'Natural selection', 'The water cycle',
+  'Prime numbers', 'Plate tectonics', 'Quantum entanglement', 'Osmosis', 'Gravity',
+  'The periodic table', 'Binary numbers', 'Renewable energy', 'The Big Bang',
+  'Cellular respiration', 'Magnetism', 'Probability', 'Chemical bonds',
+  'The immune system', 'Exponential growth',
 ];
+
+type Tab = 'learn' | 'focus';
 
 export function DashboardPage() {
   const { currentUser } = useAuth();
+  const [activeTab, setActiveTab] = useState<Tab>('learn');
   const [query, setQuery] = useState('');
   const [activeQuery, setActiveQuery] = useState('');
   const [explanation, setExplanation] = useState('');
@@ -62,11 +48,7 @@ export function DashboardPage() {
 
   const stats = useMemo(() => {
     const thisWeek = history.filter((c) => Date.now() - c.createdAt < ONE_WEEK_MS).length;
-    return {
-      total: history.length,
-      thisWeek,
-      latest: history[0]?.query ?? null,
-    };
+    return { total: history.length, thisWeek, latest: history[0]?.query ?? null };
   }, [history]);
 
   const firstName =
@@ -76,10 +58,8 @@ export function DashboardPage() {
 
   async function runExplain(concept: string) {
     if (!currentUser) return;
-
     setLoading(true);
     setError('');
-
     try {
       const result = await explainConcept(concept, difficulty);
       setExplanation(result);
@@ -121,10 +101,7 @@ export function DashboardPage() {
     playClick();
     if (!currentUser) return;
     setHistory((prev) => prev.filter((c) => c.id !== concept.id));
-    if (activeQuery === concept.query) {
-      setActiveQuery('');
-      setExplanation('');
-    }
+    if (activeQuery === concept.query) { setActiveQuery(''); setExplanation(''); }
     try {
       await deleteConcept(currentUser.uid, concept.id);
     } catch {
@@ -150,210 +127,224 @@ export function DashboardPage() {
         >
           Hey {firstName} 👋
         </motion.h1>
-        <p className="mt-1 text-slate-500">
-          Type any STEM concept and get a beginner-friendly explanation.
-        </p>
+        <p className="mt-1 text-slate-500">Type any STEM concept and get a beginner-friendly explanation.</p>
 
         <div className="mt-6 grid grid-cols-3 gap-3 sm:gap-4">
-          <StatCard
-            index={0}
-            icon={Pickaxe}
-            iconColor="text-amber-700"
-            label="Explored"
-            value={stats.total}
-          />
-          <StatCard
-            index={1}
-            icon={CalendarDays}
-            iconColor="text-emerald-600"
-            label="This week"
-            value={stats.thisWeek}
-          />
-          <StatCard
-            index={2}
-            icon={Gem}
-            iconColor="text-sky-600"
-            label="Latest topic"
-            value={stats.latest ?? '—'}
-            isText
-          />
+          <StatCard index={0} icon={Pickaxe} iconColor="text-amber-700" label="Explored" value={stats.total} />
+          <StatCard index={1} icon={CalendarDays} iconColor="text-emerald-600" label="This week" value={stats.thisWeek} />
+          <StatCard index={2} icon={Gem} iconColor="text-sky-600" label="Latest topic" value={stats.latest ?? '—'} isText />
         </div>
 
-        <motion.form
-          onSubmit={handleSubmit}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, delay: 0.15 }}
-          className="relative mt-6 overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 p-5 shadow-md sm:p-6"
-        >
-          <motion.div
-            aria-hidden
-            className="pointer-events-none absolute inset-y-0 left-0 w-1/4 -skew-x-12 bg-gradient-to-r from-transparent via-white/40 to-transparent"
-            initial={{ x: '-200%' }}
-            animate={{ x: '600%' }}
-            transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 2.8, ease: 'easeInOut' }}
-          />
-
-          <div className="relative z-10">
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm font-medium text-emerald-50">
-                <motion.span
-                  animate={{ scale: [1, 1.25, 1], rotate: [0, 12, 0] }}
-                  transition={{ duration: 2.4, repeat: Infinity, repeatDelay: 1.2, ease: 'easeInOut' }}
-                >
-                  <Gem className="h-4 w-4" />
-                </motion.span>
-                What do you want to understand today?
-              </label>
-              <div className="flex gap-1 rounded-lg bg-black/20 p-0.5">
-                {(['beginner', 'intermediate', 'advanced'] as const).map((level) => (
-                  <button
-                    key={level}
-                    type="button"
-                    onClick={() => { playClick(); setDifficulty(level); }}
-                    className={`rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors ${
-                      difficulty === level
-                        ? 'bg-white text-slate-900 shadow-sm'
-                        : 'text-white/70 hover:text-white'
-                    }`}
-                  >
-                    {level}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="relative mt-3">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="e.g. Newton's second law"
-                className="w-full rounded-lg border-0 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-white"
-              />
-            </div>
-            <div className="mt-2 flex flex-col gap-2 sm:flex-row">
-              <motion.button
-                type="submit"
-                disabled={loading || !query.trim()}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Pickaxe className="h-4 w-4" />
-                {loading ? 'Thinking…' : 'Explain'}
-              </motion.button>
-              <motion.button
-                type="button"
-                onClick={handleSurpriseMe}
-                disabled={loading}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                className="flex items-center justify-center gap-1.5 rounded-lg border border-white/30 bg-white/10 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <Shuffle className="h-4 w-4" />
-                Surprise me
-              </motion.button>
-            </div>
-          </div>
-        </motion.form>
-
-        <AnimatePresence>
-          {error && (
-            <motion.p
-              initial={{ opacity: 0, y: -8, height: 0 }}
-              animate={{ opacity: 1, y: 0, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-4 rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-700"
+        {/* Tab bar */}
+        <div className="mt-6 flex gap-1 rounded-xl bg-slate-100 p-1">
+          {([
+            { id: 'learn' as Tab, label: 'Learn', icon: Pickaxe },
+            { id: 'focus' as Tab, label: 'Focus Timer', icon: Timer },
+          ] as const).map(({ id, label, icon: Icon }) => (
+            <motion.button
+              key={id}
+              onClick={() => { playClick(); setActiveTab(id); }}
+              whileTap={{ scale: 0.97 }}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-medium transition-colors ${
+                activeTab === id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              }`}
             >
-              {error}
-            </motion.p>
+              <Icon className="h-4 w-4" />
+              {label}
+            </motion.button>
+          ))}
+        </div>
+
+        <AnimatePresence mode="wait">
+          {activeTab === 'learn' && (
+            <motion.div
+              key="learn"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+            >
+              <motion.form
+                onSubmit={handleSubmit}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: 0.05 }}
+                className="relative mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 to-emerald-700 p-5 shadow-md sm:p-6"
+              >
+                <motion.div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-y-0 left-0 w-1/4 -skew-x-12 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                  initial={{ x: '-200%' }}
+                  animate={{ x: '600%' }}
+                  transition={{ duration: 2.2, repeat: Infinity, repeatDelay: 2.8, ease: 'easeInOut' }}
+                />
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-2 text-sm font-medium text-emerald-50">
+                      <motion.span
+                        animate={{ scale: [1, 1.25, 1], rotate: [0, 12, 0] }}
+                        transition={{ duration: 2.4, repeat: Infinity, repeatDelay: 1.2, ease: 'easeInOut' }}
+                      >
+                        <Gem className="h-4 w-4" />
+                      </motion.span>
+                      What do you want to understand today?
+                    </label>
+                    <div className="flex gap-1 rounded-lg bg-black/20 p-0.5">
+                      {(['beginner', 'intermediate', 'advanced'] as const).map((level) => (
+                        <button
+                          key={level}
+                          type="button"
+                          onClick={() => { playClick(); setDifficulty(level); }}
+                          className={`rounded-md px-2.5 py-1 text-xs font-medium capitalize transition-colors ${
+                            difficulty === level ? 'bg-white text-slate-900 shadow-sm' : 'text-white/70 hover:text-white'
+                          }`}
+                        >
+                          {level}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="relative mt-3">
+                    <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="e.g. Newton's second law"
+                      className="w-full rounded-lg border-0 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-white"
+                    />
+                  </div>
+                  <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+                    <motion.button
+                      type="submit"
+                      disabled={loading || !query.trim()}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Pickaxe className="h-4 w-4" />
+                      {loading ? 'Thinking…' : 'Explain'}
+                    </motion.button>
+                    <motion.button
+                      type="button"
+                      onClick={handleSurpriseMe}
+                      disabled={loading}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.97 }}
+                      className="flex items-center justify-center gap-1.5 rounded-lg border border-white/30 bg-white/10 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/20 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Shuffle className="h-4 w-4" />
+                      Surprise me
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.form>
+
+              <AnimatePresence>
+                {error && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -8, height: 0 }}
+                    animate={{ opacity: 1, y: 0, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-4 rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-700"
+                  >
+                    {error}
+                  </motion.p>
+                )}
+              </AnimatePresence>
+
+              <div className="mt-8 grid gap-8 md:grid-cols-[2fr_1fr]">
+                <section>
+                  {loading && <LoadingSpinner label="Thinking of the best way to explain this…" />}
+                  <AnimatePresence mode="wait">
+                    {!loading && explanation && (
+                      <motion.div
+                        key={activeQuery}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.25 }}
+                        className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+                      >
+                        <div className="flex items-center gap-2 text-emerald-700">
+                          <Gem className="h-4 w-4" />
+                          <span className="text-xs font-semibold uppercase tracking-wide">Explanation</span>
+                        </div>
+                        <h2 className="mt-2 font-display text-lg font-semibold text-slate-900">{activeQuery}</h2>
+                        <p className="mt-3 whitespace-pre-line leading-relaxed text-slate-700">{explanation}</p>
+                      </motion.div>
+                    )}
+                    {!loading && !explanation && (
+                      <motion.div
+                        key="empty"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 p-10 text-center"
+                      >
+                        <motion.div
+                          animate={{ y: [0, -6, 0] }}
+                          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                        >
+                          <Pickaxe className="h-8 w-8 text-slate-300" />
+                        </motion.div>
+                        <p className="mt-3 text-sm text-slate-400">Your explanation will show up here.</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </section>
+
+                <aside>
+                  <div className="flex items-center justify-between">
+                    <h3 className="flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wide text-slate-500">
+                      <Backpack className="h-4 w-4" />
+                      Recent ({Math.min(history.length, 5)})
+                    </h3>
+                    {history.length > 0 && (
+                      <motion.button
+                        onClick={() => { playClick(); setShowFlashcards(true); }}
+                        whileHover={{ scale: 1.04 }}
+                        whileTap={{ scale: 0.96 }}
+                        className="flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100"
+                      >
+                        <LayersIcon className="h-3.5 w-3.5" />
+                        Review all
+                      </motion.button>
+                    )}
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {historyLoading && <LoadingSpinner />}
+                    {!historyLoading && history.length === 0 && (
+                      <p className="w-full rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-400">
+                        No concepts yet — search for one above!
+                      </p>
+                    )}
+                    {history.slice(0, 5).map((concept, i) => (
+                      <ConceptCard
+                        key={concept.id}
+                        concept={concept}
+                        onSelect={handleSelectConcept}
+                        onDelete={handleDeleteConcept}
+                        index={i}
+                      />
+                    ))}
+                  </div>
+                </aside>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'focus' && (
+            <motion.div
+              key="focus"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+            >
+              <PomodoroTimer />
+            </motion.div>
           )}
         </AnimatePresence>
-
-        <div className="mt-8 grid gap-8 md:grid-cols-[2fr_1fr]">
-          <section>
-            {loading && <LoadingSpinner label="Thinking of the best way to explain this…" />}
-            <AnimatePresence mode="wait">
-              {!loading && explanation && (
-                <motion.div
-                  key={activeQuery}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.25 }}
-                  className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
-                >
-                  <div className="flex items-center gap-2 text-emerald-700">
-                    <Gem className="h-4 w-4" />
-                    <span className="text-xs font-semibold uppercase tracking-wide">
-                      Explanation
-                    </span>
-                  </div>
-                  <h2 className="mt-2 font-display text-lg font-semibold text-slate-900">
-                    {activeQuery}
-                  </h2>
-                  <p className="mt-3 whitespace-pre-line leading-relaxed text-slate-700">
-                    {explanation}
-                  </p>
-                </motion.div>
-              )}
-              {!loading && !explanation && (
-                <motion.div
-                  key="empty"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 p-10 text-center"
-                >
-                  <motion.div
-                    animate={{ y: [0, -6, 0] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                  >
-                    <Pickaxe className="h-8 w-8 text-slate-300" />
-                  </motion.div>
-                  <p className="mt-3 text-sm text-slate-400">Your explanation will show up here.</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </section>
-
-          <aside>
-            <div className="flex items-center justify-between">
-              <h3 className="flex items-center gap-1.5 text-sm font-semibold uppercase tracking-wide text-slate-500">
-                <Backpack className="h-4 w-4" />
-                Your history ({history.length})
-              </h3>
-              {history.length > 0 && (
-                <motion.button
-                  onClick={() => { playClick(); setShowFlashcards(true); }}
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
-                  className="flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100"
-                >
-                  <LayersIcon className="h-3.5 w-3.5" />
-                  Review
-                </motion.button>
-              )}
-            </div>
-            <div className="mt-3 flex flex-wrap gap-1.5">
-              {historyLoading && <LoadingSpinner />}
-              {!historyLoading && history.length === 0 && (
-                <p className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-400">
-                  No concepts explored yet — search for one above!
-                </p>
-              )}
-              {history.map((concept, i) => (
-                <ConceptCard
-                  key={concept.id}
-                  concept={concept}
-                  onSelect={handleSelectConcept}
-                  onDelete={handleDeleteConcept}
-                  index={i}
-                />
-              ))}
-            </div>
-          </aside>
-        </div>
       </div>
     </>
   );
@@ -370,7 +361,6 @@ interface StatCardProps {
 
 function StatCard({ icon: Icon, iconColor, label, value, isText, index }: StatCardProps) {
   const countedValue = useCountUp(typeof value === 'number' ? value : 0);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -380,13 +370,7 @@ function StatCard({ icon: Icon, iconColor, label, value, isText, index }: StatCa
       className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4"
     >
       <Icon className={`h-4 w-4 ${iconColor}`} />
-      <p
-        className={
-          isText
-            ? 'mt-2 truncate text-sm font-semibold text-slate-900'
-            : 'mt-2 text-xl font-bold text-slate-900'
-        }
-      >
+      <p className={isText ? 'mt-2 truncate text-sm font-semibold text-slate-900' : 'mt-2 text-xl font-bold text-slate-900'}>
         {isText ? value : countedValue}
       </p>
       <p className="text-xs text-slate-500">{label}</p>

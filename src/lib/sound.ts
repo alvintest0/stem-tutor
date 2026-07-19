@@ -63,3 +63,12 @@ export function playFlip() {
   if (!ctx) return;
   tone(ctx, 'sine', 900, 420, 0.14, 0.09);
 }
+
+// Pomodoro session complete — three spaced bell tones
+export function playTimerDone() {
+  const ctx = getCtx();
+  if (!ctx) return;
+  [[523.25, 0.22], [783.99, 0.18], [1046.5, 0.2]].forEach(([freq, vol], i) => {
+    tone(ctx, 'sine', freq, freq, vol, 1.1, i * 0.28);
+  });
+}
