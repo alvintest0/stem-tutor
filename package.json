@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "users:count": "node --env-file=.env.local scripts/count-users.mjs"
+    "users:count": "node --env-file=.env.local scripts/count-users.mjs",
+    "concepts:count": "node --env-file=.env.local scripts/count-concepts.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.106.0",

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Mail } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthCard } from '@/components/AuthCard';
-import { playClick, playHover } from '@/lib/sound';
+import { playClick } from '@/lib/sound';
 
 export function VerifyEmailPage() {
   const { currentUser, emailVerified, resendVerificationEmail, refreshEmailVerified, logout } =
@@ -86,7 +86,6 @@ export function VerifyEmailPage() {
 
         <motion.button
           onClick={handleCheck}
-          onMouseEnter={playHover}
           disabled={status === 'checking'}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
@@ -97,7 +96,6 @@ export function VerifyEmailPage() {
 
         <motion.button
           onClick={handleResend}
-          onMouseEnter={playHover}
           disabled={status === 'sending'}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
@@ -108,7 +106,6 @@ export function VerifyEmailPage() {
 
         <button
           onClick={handleLogout}
-          onMouseEnter={playHover}
           className="mt-3 text-sm text-slate-400 hover:underline"
         >
           Log out

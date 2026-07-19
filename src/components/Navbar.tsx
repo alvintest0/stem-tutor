@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { BarChart2, Box, LogOut } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { playClick, playHover } from '@/lib/sound';
+import { playClick } from '@/lib/sound';
 
 const ADMIN_EMAIL = 'lucky.alvinwijaya@gmail.com';
 
@@ -62,7 +62,6 @@ export function Navbar() {
         ) : (
           <Link
             to="/login"
-            onMouseEnter={playHover}
             onClick={playClick}
             className="rounded-md border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:border-slate-300 hover:bg-slate-50"
           >

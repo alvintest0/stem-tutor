@@ -2,7 +2,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { motion, type Variants } from 'framer-motion';
 import { ArrowRight, Backpack, Box, Gem, Pickaxe, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { playClick, playHover } from '@/lib/sound';
+import { playClick } from '@/lib/sound';
 
 const FEATURES = [
   {
@@ -114,7 +114,6 @@ export function HomePage() {
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="w-full sm:w-auto">
               <Link
                 to="/signup"
-                onMouseEnter={playHover}
                 onClick={playClick}
                 className="relative flex w-full items-center justify-center gap-1.5 overflow-hidden rounded-lg bg-emerald-600 px-6 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 sm:w-auto"
               >
@@ -134,7 +133,6 @@ export function HomePage() {
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="w-full sm:w-auto">
               <Link
                 to="/login"
-                onMouseEnter={playHover}
                 onClick={playClick}
                 className="block w-full rounded-lg border border-slate-300 bg-white px-6 py-3 text-center text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 sm:w-auto"
               >

@@ -1,54 +1,65 @@
 let audioContext: AudioContext | undefined;
 
-function getAudioContext(): AudioContext | undefined {
+function getCtx(): AudioContext | undefined {
   if (typeof window === 'undefined' || !window.AudioContext) return undefined;
-  if (!audioContext) {
-    audioContext = new AudioContext();
-  }
-  if (audioContext.state === 'suspended') {
-    void audioContext.resume();
-  }
+  if (!audioContext) audioContext = new AudioContext();
+  if (audioContext.state === 'suspended') void audioContext.resume();
   return audioContext;
 }
 
-function playTone(
-  frequency: number,
+function tone(
+  ctx: AudioContext,
+  type: OscillatorType,
+  startFreq: number,
+  endFreq: number,
+  startVol: number,
   duration: number,
-  volume: number,
-  type: OscillatorType = 'sine',
-  startDelay = 0,
+  delay = 0,
 ) {
-  const ctx = getAudioContext();
-  if (!ctx) return;
-
-  const oscillator = ctx.createOscillator();
-  const gainNode = ctx.createGain();
-
-  oscillator.type = type;
-  oscillator.frequency.value = frequency;
-
-  const startTime = ctx.currentTime + startDelay;
-  gainNode.gain.setValueAtTime(0, startTime);
-  gainNode.gain.linearRampToValueAtTime(volume, startTime + 0.01);
-  gainNode.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
-
-  oscillator.connect(gainNode);
-  gainNode.connect(ctx.destination);
-
-  oscillator.start(startTime);
-  oscillator.stop(startTime + duration);
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.type = type;
+  const t = ctx.currentTime + delay;
+  osc.frequency.setValueAtTime(startFreq, t);
+  if (endFreq !== startFreq) osc.frequency.exponentialRampToValueAtTime(endFreq, t + duration);
+  gain.gain.setValueAtTime(startVol, t);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+  osc.start(t);
+  osc.stop(t + duration);
 }
 
+// Satisfying "thock" — body thud + sharp transient
 export function playClick() {
-  playTone(700, 0.06, 0.08, 'sine');
+  const ctx = getCtx();
+  if (!ctx) return;
+  tone(ctx, 'sine', 260, 80, 0.35, 0.1);
+  tone(ctx, 'square', 2400, 2400, 0.04, 0.018);
 }
 
-export function playHover() {
-  playTone(1000, 0.03, 0.035, 'sine');
+// Soft bell chord when explanation loads
+export function playSuccess() {
+  const ctx = getCtx();
+  if (!ctx) return;
+  // C5 + E5 + G5 sine partials with long decay — bell-like
+  [[523.25, 0.2], [659.25, 0.12], [783.99, 0.07], [1046.5, 0.05]].forEach(([freq, vol], i) => {
+    tone(ctx, 'sine', freq, freq, vol, 1.4 - i * 0.15);
+  });
 }
 
+// Four-note ascending arpeggio — C5 E5 G5 C6
 export function playSurprise() {
-  playTone(523.25, 0.1, 0.07, 'triangle', 0); // C5
-  playTone(659.25, 0.1, 0.07, 'triangle', 0.08); // E5
-  playTone(783.99, 0.15, 0.08, 'triangle', 0.16); // G5
+  const ctx = getCtx();
+  if (!ctx) return;
+  [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+    tone(ctx, 'triangle', freq, freq, 0.18, 0.38, i * 0.1);
+  });
+}
+
+// Light card flip — quick frequency sweep
+export function playFlip() {
+  const ctx = getCtx();
+  if (!ctx) return;
+  tone(ctx, 'sine', 900, 420, 0.14, 0.09);
 }

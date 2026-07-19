@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { AuthCard } from '@/components/AuthCard';
 import { TextField } from '@/components/TextField';
 import { GoogleIcon } from '@/components/GoogleIcon';
-import { playClick, playHover } from '@/lib/sound';
+import { playClick } from '@/lib/sound';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
@@ -101,7 +101,6 @@ export function LoginPage() {
         <motion.button
           type="submit"
           disabled={submitting}
-          onMouseEnter={playHover}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
           className="w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
@@ -114,7 +113,6 @@ export function LoginPage() {
         Don&apos;t have an account?{' '}
         <Link
           to="/signup"
-          onMouseEnter={playHover}
           onClick={playClick}
           className="font-medium text-emerald-600 hover:underline"
         >
