@@ -335,7 +335,7 @@ export function DashboardPage() {
                 </motion.button>
               )}
             </div>
-            <div className="mt-3 max-h-[480px] space-y-1.5 overflow-y-auto pr-0.5">
+            <div className="mt-3 flex flex-wrap gap-1.5">
               {historyLoading && <LoadingSpinner />}
               {!historyLoading && history.length === 0 && (
                 <p className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-400">

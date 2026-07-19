@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Box, Trash2 } from 'lucide-react';
+import { X } from 'lucide-react';
 import type { Concept } from '@/types';
 
 interface ConceptCardProps {
@@ -9,51 +9,30 @@ interface ConceptCardProps {
   index?: number;
 }
 
-function shortRelativeTime(timestamp: number): string {
-  const diff = Date.now() - timestamp;
-  const mins = Math.round(diff / 60000);
-  const hrs = Math.round(diff / 3600000);
-  const days = Math.round(diff / 86400000);
-  if (diff < 60000) return 'now';
-  if (mins < 60) return `${mins}m`;
-  if (hrs < 24) return `${hrs}h`;
-  return `${days}d`;
-}
-
 export function ConceptCard({ concept, onSelect, onDelete, index = 0 }: ConceptCardProps) {
   return (
-    <motion.div
-      role="button"
-      tabIndex={0}
+    <motion.button
+      type="button"
       onClick={() => onSelect(concept)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') onSelect(concept);
-      }}
-      initial={{ opacity: 0, x: -6 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.2, delay: Math.min(index, 8) * 0.04 }}
-      whileHover={{ x: 2, transition: { duration: 0.1 } }}
-      whileTap={{ scale: 0.99 }}
-      className="group flex cursor-pointer items-center gap-2.5 rounded-lg border border-slate-100 bg-white px-3 py-2.5 text-left transition-colors hover:border-emerald-200 hover:bg-emerald-50/50"
+      initial={{ opacity: 0, scale: 0.85 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.15, delay: Math.min(index, 12) * 0.03 }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      className="group flex items-center gap-1.5 rounded-full border border-slate-200 bg-white py-1.5 pl-3 pr-1.5 text-xs font-medium text-slate-700 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800"
     >
-      <Box className="h-3.5 w-3.5 flex-shrink-0 text-emerald-600" />
-      <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-700">
-        {concept.query}
-      </span>
-      <span className="flex-shrink-0 text-xs text-slate-400">
-        {shortRelativeTime(concept.createdAt)}
-      </span>
-      <button
-        type="button"
+      <span className="max-w-[130px] truncate">{concept.query}</span>
+      <span
+        role="button"
         aria-label={`Delete ${concept.query}`}
         onClick={(e) => {
           e.stopPropagation();
           onDelete(concept);
         }}
-        className="flex-shrink-0 rounded p-0.5 text-slate-300 opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
+        className="flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-full text-slate-300 transition-colors hover:bg-red-100 hover:text-red-500"
       >
-        <Trash2 className="h-3 w-3" />
-      </button>
-    </motion.div>
+        <X className="h-2.5 w-2.5" />
+      </span>
+    </motion.button>
   );
 }
