@@ -9,17 +9,15 @@ interface ConceptCardProps {
   index?: number;
 }
 
-function formatRelativeTime(timestamp: number): string {
-  const diffSeconds = Math.round((timestamp - Date.now()) / 1000);
-  const diffMinutes = Math.round(diffSeconds / 60);
-  const diffHours = Math.round(diffMinutes / 60);
-  const diffDays = Math.round(diffHours / 24);
-
-  const formatter = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
-  if (Math.abs(diffDays) >= 1) return formatter.format(diffDays, 'day');
-  if (Math.abs(diffHours) >= 1) return formatter.format(diffHours, 'hour');
-  if (Math.abs(diffMinutes) >= 1) return formatter.format(diffMinutes, 'minute');
-  return 'just now';
+function shortRelativeTime(timestamp: number): string {
+  const diff = Date.now() - timestamp;
+  const mins = Math.round(diff / 60000);
+  const hrs = Math.round(diff / 3600000);
+  const days = Math.round(diff / 86400000);
+  if (diff < 60000) return 'now';
+  if (mins < 60) return `${mins}m`;
+  if (hrs < 24) return `${hrs}h`;
+  return `${days}d`;
 }
 
 export function ConceptCard({ concept, onSelect, onDelete, index = 0 }: ConceptCardProps) {
@@ -31,13 +29,20 @@ export function ConceptCard({ concept, onSelect, onDelete, index = 0 }: ConceptC
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') onSelect(concept);
       }}
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: Math.min(index, 8) * 0.05 }}
-      whileHover={{ y: -3, transition: { duration: 0.15 } }}
-      whileTap={{ scale: 0.98 }}
-      className="group relative w-full cursor-pointer rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-colors hover:border-emerald-300 hover:shadow-md"
+      initial={{ opacity: 0, x: -6 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.2, delay: Math.min(index, 8) * 0.04 }}
+      whileHover={{ x: 2, transition: { duration: 0.1 } }}
+      whileTap={{ scale: 0.99 }}
+      className="group flex cursor-pointer items-center gap-2.5 rounded-lg border border-slate-100 bg-white px-3 py-2.5 text-left transition-colors hover:border-emerald-200 hover:bg-emerald-50/50"
     >
+      <Box className="h-3.5 w-3.5 flex-shrink-0 text-emerald-600" />
+      <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-700">
+        {concept.query}
+      </span>
+      <span className="flex-shrink-0 text-xs text-slate-400">
+        {shortRelativeTime(concept.createdAt)}
+      </span>
       <button
         type="button"
         aria-label={`Delete ${concept.query}`}
@@ -45,20 +50,10 @@ export function ConceptCard({ concept, onSelect, onDelete, index = 0 }: ConceptC
           e.stopPropagation();
           onDelete(concept);
         }}
-        className="absolute right-3 top-3 rounded-md p-1 text-slate-300 opacity-0 transition-all hover:bg-red-50 hover:text-red-600 group-hover:opacity-100"
+        className="flex-shrink-0 rounded p-0.5 text-slate-300 opacity-0 transition-all hover:bg-red-50 hover:text-red-500 group-hover:opacity-100"
       >
-        <Trash2 className="h-3.5 w-3.5" />
+        <Trash2 className="h-3 w-3" />
       </button>
-      <div className="flex items-start gap-3">
-        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-emerald-50 text-emerald-700 transition-colors group-hover:bg-emerald-100">
-          <Box className="h-4 w-4" />
-        </span>
-        <div className="min-w-0 pr-5">
-          <p className="truncate font-medium text-slate-800">{concept.query}</p>
-          <p className="mt-1 line-clamp-2 text-sm text-slate-500">{concept.explanation}</p>
-          <p className="mt-2 text-xs text-slate-400">{formatRelativeTime(concept.createdAt)}</p>
-        </div>
-      </div>
     </motion.div>
   );
 }
